@@ -45,21 +45,22 @@ class BinaryReader:
         return bytearray(self.__buf)
 
     def pad(self, size: int) -> None:
-        """Extends the buffer by 0s with the given size."""
-        self.__buf.extend([0] * size)
+        """Pads the buffer by 0s with the given size and advances the buffer position."""
+        self.extend([0] * size)
+        self.__idx += size
 
     def align(self, size: int) -> None:
-        """Aligns the buffer to the given size.\n
+        """Aligns the buffer to the given size and advances the buffer position.\n
         Extends the buffer starting from the current position by (size - (position % size)).
         """
         if self.__idx % size:
             pad = size - (self.__idx % size)
             self.pad(pad)
-            return pad
-        return 0
 
     def extend(self, buffer: bytearray) -> None:
-        """Extends the BinaryReader's buffer with the given buffer."""
+        """Extends the BinaryReader's buffer with the given buffer.\n
+        Does not advance buffer position.
+        """
         self.__buf.extend(buffer)
 
     def seek(self, offset: int, whence=0) -> None:
@@ -212,13 +213,13 @@ class BinaryReader:
 
         if i + (FMT[format] * count) > len(self.__buf):
             self.pad(FMT[format] * count)
+        else:
+            self.__idx += FMT[format] * count
 
         if is_iterable:
             struct.pack_into(end + str(count) + format, self.__buf, i, *value)
         else:
             struct.pack_into(end + str(count) + format, self.__buf, i, value)
-
-        self.__idx += FMT[format] * count
 
     def write_bytes(self, value: bytes) -> None:
         """Writes a bytes object to the buffer."""
