@@ -122,7 +122,7 @@ class BinaryReader:
         return self.read_bytes(length)[0].split(b'\x00', 1)[0].decode(encoding)
 
     def read_int64(self, count=1) -> Union[int, Tuple[int]]:
-        """Reads a signed 64-bit integer.
+        """Reads a signed 64-bit integer.\n
         If count is greater than 1, will return a tuple of values instead of 1 value.
         """
         if count > 1:
@@ -130,7 +130,7 @@ class BinaryReader:
         return self.__read_type("q")[0]
 
     def read_uint64(self, count=1) -> Union[int, Tuple[int]]:
-        """Reads an unsigned 64-bit integer.
+        """Reads an unsigned 64-bit integer.\n
         If count is greater than 1, will return a tuple of values instead of 1 value.
         """
         if count > 1:
@@ -138,7 +138,7 @@ class BinaryReader:
         return self.__read_type("Q")[0]
 
     def read_int32(self, count=1) -> Union[int, Tuple[int]]:
-        """Reads a signed 32-bit integer.
+        """Reads a signed 32-bit integer.\n
         If count is greater than 1, will return a tuple of values instead of 1 value.
         """
         if count > 1:
@@ -146,7 +146,7 @@ class BinaryReader:
         return self.__read_type("i")[0]
 
     def read_uint32(self, count=1) -> Union[int, Tuple[int]]:
-        """Reads an unsigned 32-bit integer.
+        """Reads an unsigned 32-bit integer.\n
         If count is greater than 1, will return a tuple of values instead of 1 value.
         """
         if count > 1:
@@ -154,7 +154,7 @@ class BinaryReader:
         return self.__read_type("I")[0]
 
     def read_int16(self, count=1) -> Union[int, Tuple[int]]:
-        """Reads a signed 16-bit integer.
+        """Reads a signed 16-bit integer.\n
         If count is greater than 1, will return a tuple of values instead of 1 value.
         """
         if count > 1:
@@ -162,7 +162,7 @@ class BinaryReader:
         return self.__read_type("h")[0]
 
     def read_uint16(self, count=1) -> Union[int, Tuple[int]]:
-        """Reads an unsigned 16-bit integer.
+        """Reads an unsigned 16-bit integer.\n
         If count is greater than 1, will return a tuple of values instead of 1 value.
         """
         if count > 1:
@@ -170,7 +170,7 @@ class BinaryReader:
         return self.__read_type("H")[0]
 
     def read_int8(self, count=1) -> Union[int, Tuple[int]]:
-        """Reads a signed 8-bit integer.
+        """Reads a signed 8-bit integer.\n
         If count is greater than 1, will return a tuple of values instead of 1 value.
         """
         if count > 1:
@@ -178,7 +178,7 @@ class BinaryReader:
         return self.__read_type("b")[0]
 
     def read_uint8(self, count=1) -> Union[int, Tuple[int]]:
-        """Reads an unsigned 8-bit integer.
+        """Reads an unsigned 8-bit integer.\n
         If count is greater than 1, will return a tuple of values instead of 1 value.
         """
         if count > 1:
@@ -186,7 +186,7 @@ class BinaryReader:
         return self.__read_type("B")[0]
 
     def read_float(self, count=1) -> Union[float, Tuple[float]]:
-        """Reads a 32-bit float.
+        """Reads a 32-bit float.\n
         If count is greater than 1, will return a tuple of values instead of 1 value.
         """
         if count > 1:
@@ -226,7 +226,7 @@ class BinaryReader:
 
     def write_str(self, string: str, null=False, encoding='utf-8') -> None:
         """Writes a whole string to the buffer.\n
-        If null is True, will append a null byte (0x00) after the string.
+        If null is True, will append a null byte (0x00) after the string.\n
         Default encoding is UTF-8.
         """
         self.write_bytes(string.encode(encoding) + (b'\x00' if null else b''))
