@@ -102,7 +102,7 @@ class BinaryReader:
 
     def read_bytes(self, length=1) -> bytes:
         """Reads a bytes object with the given length from the current position."""
-        self.__read_type("s", length)
+        return self.__read_type("s", length)
 
     def read_str(self, length=0, encoding='utf-8') -> str:
         """Reads a string with the given length from the current position.\n
@@ -113,10 +113,10 @@ class BinaryReader:
             string = bytearray()
             while self.__idx < len(self.__buf):
                 string.append(self.__buf[self.__idx])
-                if string[-1] == '\x00':
+                self.__idx += 1
+                if string[-1] == 0:
                     break
 
-            self.__idx += len(string)
             return string.split(b'\x00', 1)[0].decode(encoding)
 
         return self.read_bytes(length)[0].split(b'\x00', 1)[0].decode(encoding)
