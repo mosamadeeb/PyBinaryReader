@@ -219,17 +219,12 @@ class BinaryReader:
         """Writes a bytes object to the buffer."""
         self.__write_type("s", value, is_iterable=False)
 
-    def write_str(self, string: str, encoding='utf-8') -> None:
+    def write_str(self, string: str, null=False, encoding='utf-8') -> None:
         """Writes a whole string to the buffer.\n
+        If null is True, will append a null byte (0x00) after the string.
         Default encoding is UTF-8.
         """
-        self.write_bytes(string.encode(encoding))
-    
-    def write_str_null(self, string: str, encoding='utf-8') -> None:
-        """Writes a whole null-terminated string to the buffer.\n
-        Default encoding is UTF-8.
-        """
-        self.write_bytes(string.encode(encoding) + b'\x00')
+        self.write_bytes(string.encode(encoding) + (b'\x00' if null else b''))
 
     def write_int32(self, value: int, is_iterable=False) -> None:
         """Writes a signed 32-bit integer.\n
