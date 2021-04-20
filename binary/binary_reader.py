@@ -28,7 +28,7 @@ class BinaryReader:
         """Constructs a BinaryReader with the given buffer and endianness and sets its position to 0.\n
         If buffer is not given, a new bytearray() is created. If endianness is not given, it is set to little endian.
         """
-        self.__buf = buffer if type(buffer) is bytearray else bytearray(buffer)
+        self.__buf = bytearray(buffer)
         self.__big_end = big_endian
         self.__idx = 0
 
@@ -42,7 +42,7 @@ class BinaryReader:
 
     def buffer(self) -> bytearray:
         """Returns the buffer as a bytearray."""
-        return self.__buf if type(self.__buf) is bytearray else bytearray(self.__buf)
+        return bytearray(self.__buf)
 
     def pad(self, size: int) -> None:
         """Extends the buffer by 0s with the given size."""
