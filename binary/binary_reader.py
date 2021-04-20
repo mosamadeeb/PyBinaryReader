@@ -24,9 +24,9 @@ class BinaryReader:
     __idx: int
     __big_end: bool
 
-    def __init__(self, buffer=bytearray(), big_endian=True):
+    def __init__(self, buffer=bytearray(), big_endian=False):
         """Constructs a BinaryReader with the given buffer and endianness and sets its position to 0.\n
-        If buffer is not given, a new bytearray() is created. If endianness is not given, it is set to big endian.
+        If buffer is not given, a new bytearray() is created. If endianness is not given, it is set to little endian.
         """
         self.__buf = buffer if type(buffer) is bytearray else bytearray(buffer)
         self.__big_end = big_endian
