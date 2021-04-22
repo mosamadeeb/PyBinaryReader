@@ -232,6 +232,18 @@ class BinaryReader:
         """
         self.write_bytes(string.encode(encoding) + (b'\x00' if null else b''))
 
+    def write_int64(self, value: int, is_iterable=False) -> None:
+        """Writes a signed 64-bit integer.\n
+        If is_iterable is True, will write all of the values in the given iterable.
+        """
+        self.__write_type("q", value, is_iterable)
+
+    def write_uint64(self, value: int, is_iterable=False) -> None:
+        """Writes an unsigned 64-bit integer.\n
+        If is_iterable is True, will write all of the values in the given iterable.
+        """
+        self.__write_type("Q", value, is_iterable)
+
     def write_int32(self, value: int, is_iterable=False) -> None:
         """Writes a signed 32-bit integer.\n
         If is_iterable is True, will write all of the values in the given iterable.
