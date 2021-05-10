@@ -24,14 +24,17 @@ class BinaryReader:
     __buf: bytearray
     __idx: int
     __big_end: bool
+    __encoding: str
 
-    def __init__(self, buffer=bytearray(), big_endian=False):
-        """Constructs a BinaryReader with the given buffer and endianness and sets its position to 0.\n
-        If buffer is not given, a new bytearray() is created. If endianness is not given, it is set to little endian.
+    def __init__(self, buffer=bytearray(), big_endian=False, encoding='utf-8'):
+        """Constructs a BinaryReader with the given buffer, endianness, and encoding and sets its position to 0.\n
+        If buffer is not given, a new bytearray() is created. If endianness is not given, it is set to little endian.\n
+        Default encoding is UTF-8. Will throw an exception if encoding is unknown.
         """
         self.__buf = bytearray(buffer)
         self.__big_end = big_endian
         self.__idx = 0
+        self.set_encoding(encoding)
 
     def __enter__(self):
         return self
@@ -113,6 +116,13 @@ class BinaryReader:
         """Sets the endianness of the BinaryReader."""
         self.__big_end = is_big_endian
 
+    def set_encoding(self, encoding: str) -> None:
+        """Sets the default encoding of the BinaryReader when reading/writing strings.\n
+        Will throw an exception if the encoding is unknown.
+        """
+        str.encode('', encoding)
+        self.__encoding = encoding
+
     def __read_type(self, format: str, count=1):
         i = self.__idx
         self.__idx += FMT[format] * count
@@ -125,11 +135,13 @@ class BinaryReader:
         """Reads a bytes object with the given length from the current position."""
         return self.__read_type("s", length)
 
-    def read_str(self, length=0, encoding='utf-8') -> str:
+    def read_str(self, length=0, encoding=None) -> str:
         """Reads a string with the given length from the current position.\n
-        If length is 0, will read until the first null byte (which the position will be set after).\n
-        Default encoding is UTF-8.
+        If length is `0` (default), will read until the first null byte (which the position will be set after).\n
+        If encoding is `None` (default), will use the BinaryReader's encoding.
         """
+        encode = self.__encoding if encoding is None else encoding
+
         if length == 0:
             string = bytearray()
             while self.__idx < len(self.__buf):
@@ -138,9 +150,9 @@ class BinaryReader:
                 if string[-1] == 0:
                     break
 
-            return string.split(b'\x00', 1)[0].decode(encoding)
+            return string.split(b'\x00', 1)[0].decode(encode)
 
-        return self.read_bytes(length)[0].split(b'\x00', 1)[0].decode(encoding)
+        return self.read_bytes(length)[0].split(b'\x00', 1)[0].decode(encode)
 
     def read_int64(self, count=1) -> Union[int, Tuple[int]]:
         """Reads a signed 64-bit integer.\n
@@ -245,12 +257,13 @@ class BinaryReader:
         """Writes a bytes object to the buffer."""
         self.__write_type("s", value, is_iterable=False)
 
-    def write_str(self, string: str, null=False, encoding='utf-8') -> None:
+    def write_str(self, string: str, null=False, encoding=None) -> None:
         """Writes a whole string to the buffer.\n
-        If null is True, will append a null byte (0x00) after the string.\n
-        Default encoding is UTF-8.
+        If null is `True`, will append a null byte (`0x00`) after the string.\n
+        If encoding is `None` (default), will use the BinaryReader's encoding.
         """
-        self.write_bytes(string.encode(encoding) + (b'\x00' if null else b''))
+        self.write_bytes(string.encode(
+            self.__encoding if encoding is None else encoding) + (b'\x00' if null else b''))
 
     def write_int64(self, value: int, is_iterable=False) -> None:
         """Writes a signed 64-bit integer.\n
