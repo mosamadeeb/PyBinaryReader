@@ -55,17 +55,27 @@ class BinaryReader:
         return bytearray(self.__buf)
 
     def pad(self, size: int) -> None:
-        """Pads the buffer by 0s with the given size and advances the buffer position."""
-        self.extend([0] * size)
-        self.__idx += size
-
-    def align(self, size: int) -> None:
-        """Aligns the buffer to the given size and advances the buffer position.\n
-        Extends the buffer starting from the current position by (size - (position % size)).
+        """Pads the buffer by 0s with the given size and advances the buffer position.\n
+        Will advance the buffer position only if the position was at the end of the buffer.
         """
-        if self.__idx % size:
-            pad = size - (self.__idx % size)
+        if self.__idx == self.size():
+            self.__idx += size
+
+        self.extend([0] * size)
+
+    def align(self, size: int) -> int:
+        """Aligns the buffer to the given size.\n
+        Extends the buffer from its end by (size - (buffer_size % size)).\n
+        Will advance the buffer position only if the position was at the end of the buffer.\n
+        Returns the number of bytes padded.
+        """
+        pad = 0
+
+        if self.size() % size:
+            pad = size - (self.size() % size)
             self.pad(pad)
+
+        return pad
 
     def extend(self, buffer: bytearray) -> None:
         """Extends the BinaryReader's buffer with the given buffer.\n
