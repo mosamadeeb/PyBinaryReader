@@ -4,6 +4,7 @@ __license__ = "MIT"
 __version__ = "1.2"
 
 import struct
+from contextlib import contextmanager
 from typing import Tuple, Union
 
 FMT = dict()
@@ -31,6 +32,12 @@ class BinaryReader:
         self.__buf = bytearray(buffer)
         self.__big_end = big_endian
         self.__idx = 0
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.__buf.clear()
 
     def pos(self) -> int:
         """Returns the current position in the buffer."""
@@ -88,6 +95,19 @@ class BinaryReader:
                     'BinaryReader Error: cannot seek farther than buffer length.')
             else:
                 self.__idx = (len(self.__buf) - 1) - offset
+
+    @contextmanager
+    def seek_to(self, offset: int, whence=0) -> 'BinaryReader':
+        """Same as `seek(offset, whence)`, but can be used with the `with` statement in a new context.\n
+        Upon returning to the old context, the original position of the buffer before the `with` statement will be restored.\n
+        Will return a reference of the BinaryReader to be used for `as` in the `with` statement.\n
+        The original BinaryReader that this was called from can still be used instead of the return value.
+        """
+        prev_pos = self.__idx
+        self.seek(offset, whence)
+        yield self
+
+        self.__idx = prev_pos
 
     def set_endian(self, is_big_endian: bool) -> None:
         """Sets the endianness of the BinaryReader."""
