@@ -73,6 +73,26 @@ class BinaryReader:
         """
         self.__buf.extend(buffer)
 
+    def trim(self, size: int) -> int:
+        """Trims the buffer to the given size.\n
+        If size is greater than the buffer's length, no bytes will be removed.\n
+        If the position of the buffer was in the trimmed range, it will be set to the end of the buffer.\n
+        Returns the number of bytes removed.
+        """
+        trimmed = 0
+
+        if size > 0:
+            trimmed = self.size() - size
+
+        if (trimmed > 0):
+            self.__buf = self.__buf[:size]
+            if (self.__idx > size):
+                self.__idx = self.size()
+        else:
+            trimmed = 0
+
+        return trimmed
+
     def seek(self, offset: int, whence=0) -> None:
         """Changes the current position of the buffer by the given offset.\n
         The seek is determined relative to the whence:\n
