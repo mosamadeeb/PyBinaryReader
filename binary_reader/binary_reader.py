@@ -5,6 +5,7 @@ __version__ = "1.3.1"
 
 import struct
 from contextlib import contextmanager
+from enum import Flag, IntEnum
 from typing import Tuple, Union
 
 FMT = dict()
@@ -18,21 +19,32 @@ for c in ["q", "Q"]:
     FMT[c] = 8
 
 
+class Endian(Flag):
+    LITTLE = False
+    BIG = True
+
+
+class Whence(IntEnum):
+    BEGIN = 0
+    CUR = 1
+    END = 2
+
+
 class BinaryReader:
     """A buffer reader/writer containing a mutable bytearray.\n
     Allows reading and writing various data types, while advancing the position of the buffer on each operation."""
     __buf: bytearray
     __idx: int
-    __big_end: bool
+    __endianness: Endian
     __encoding: str
 
-    def __init__(self, buffer=bytearray(), big_endian=False, encoding='utf-8'):
+    def __init__(self, buffer: bytearray=bytearray(), endianness: Endian=Endian.LITTLE, encoding='utf-8'):
         """Constructs a BinaryReader with the given buffer, endianness, and encoding and sets its position to 0.\n
         If buffer is not given, a new bytearray() is created. If endianness is not given, it is set to little endian.\n
         Default encoding is UTF-8. Will throw an exception if encoding is unknown.
         """
         self.__buf = bytearray(buffer)
-        self.__big_end = big_endian
+        self.__endianness = endianness
         self.__idx = 0
         self.set_encoding(encoding)
 
@@ -103,26 +115,26 @@ class BinaryReader:
 
         return trimmed
 
-    def seek(self, offset: int, whence=0) -> None:
+    def seek(self, offset: int, whence: Whence=Whence.BEGIN) -> None:
         """Changes the current position of the buffer by the given offset.\n
         The seek is determined relative to the whence:\n
-        whence = 0 will seek relative to the start.\n
-        whence = 1 will seek relative to the current position.\n
-        whence = 2 will seek relative to the end (offset should be positive).
+        Whence.BEGIN will seek relative to the start.\n
+        Whence.CUR will seek relative to the current position.\n
+        Whence.END will seek relative to the end (offset should be positive).
         """
-        if whence == 0:
+        if whence == Whence.BEGIN:
             if offset > len(self.__buf):
                 raise Exception(
                     'BinaryReader Error: cannot seek farther than buffer length.')
             else:
                 self.__idx = offset
-        elif whence == 1:
+        elif whence == Whence.CUR:
             if self.__idx + offset > len(self.__buf):
                 raise Exception(
                     'BinaryReader Error: cannot seek farther than buffer length.')
             else:
                 self.__idx += offset
-        elif whence == 2:
+        elif whence == Whence.END:
             if offset >= len(self.__buf):
                 raise Exception(
                     'BinaryReader Error: cannot seek farther than buffer length.')
@@ -130,7 +142,7 @@ class BinaryReader:
                 self.__idx = (len(self.__buf) - 1) - offset
 
     @contextmanager
-    def seek_to(self, offset: int, whence=0) -> 'BinaryReader':
+    def seek_to(self, offset: int, whence: Whence=Whence.BEGIN) -> 'BinaryReader':
         """Same as `seek(offset, whence)`, but can be used with the `with` statement in a new context.\n
         Upon returning to the old context, the original position of the buffer before the `with` statement will be restored.\n
         Will return a reference of the BinaryReader to be used for `as` in the `with` statement.\n
@@ -142,9 +154,9 @@ class BinaryReader:
 
         self.__idx = prev_pos
 
-    def set_endian(self, is_big_endian: bool) -> None:
+    def set_endian(self, endianness: Endian) -> None:
         """Sets the endianness of the BinaryReader."""
-        self.__big_end = is_big_endian
+        self.__endianness = endianness
 
     def set_encoding(self, encoding: str) -> None:
         """Sets the default encoding of the BinaryReader when reading/writing strings.\n
@@ -157,7 +169,7 @@ class BinaryReader:
         i = self.__idx
         self.__idx += FMT[format] * count
 
-        end = ">" if self.__big_end else "<"
+        end = ">" if self.__endianness else "<"
 
         return struct.unpack_from(end + str(count) + format, self.__buf, i)
 
@@ -267,7 +279,7 @@ class BinaryReader:
     def __write_type(self, format: str, value, is_iterable: bool) -> None:
         i = self.__idx
 
-        end = ">" if self.__big_end else "<"
+        end = ">" if self.__endianness else "<"
 
         count = 1
         if is_iterable or type(value) is bytes:
