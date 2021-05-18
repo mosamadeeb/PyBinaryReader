@@ -38,7 +38,7 @@ class BinaryReader:
     __endianness: Endian
     __encoding: str
 
-    def __init__(self, buffer: bytearray=bytearray(), endianness: Endian=Endian.LITTLE, encoding='utf-8'):
+    def __init__(self, buffer: bytearray = bytearray(), endianness: Endian = Endian.LITTLE, encoding='utf-8'):
         """Constructs a BinaryReader with the given buffer, endianness, and encoding and sets its position to 0.\n
         If buffer is not given, a new bytearray() is created. If endianness is not given, it is set to little endian.\n
         Default encoding is UTF-8. Will throw an exception if encoding is unknown.
@@ -115,34 +115,32 @@ class BinaryReader:
 
         return trimmed
 
-    def seek(self, offset: int, whence: Whence=Whence.BEGIN) -> None:
+    def seek(self, offset: int, whence: Whence = Whence.BEGIN) -> None:
         """Changes the current position of the buffer by the given offset.\n
         The seek is determined relative to the whence:\n
         Whence.BEGIN will seek relative to the start.\n
         Whence.CUR will seek relative to the current position.\n
         Whence.END will seek relative to the end (offset should be positive).
         """
+        new_offset = self.__idx
+
         if whence == Whence.BEGIN:
-            if offset > len(self.__buf):
-                raise Exception(
-                    'BinaryReader Error: cannot seek farther than buffer length.')
-            else:
-                self.__idx = offset
+            new_offset = offset
         elif whence == Whence.CUR:
-            if self.__idx + offset > len(self.__buf):
-                raise Exception(
-                    'BinaryReader Error: cannot seek farther than buffer length.')
-            else:
-                self.__idx += offset
+            new_offset = self.__idx + offset
         elif whence == Whence.END:
-            if offset >= len(self.__buf):
-                raise Exception(
-                    'BinaryReader Error: cannot seek farther than buffer length.')
-            else:
-                self.__idx = (len(self.__buf) - 1) - offset
+            new_offset = len(self.__buf) - offset
+        else:
+            raise Exception('BinaryReader Error: invalid whence value.')
+
+        if new_offset > len(self.__buf) or new_offset < 0:
+            raise Exception(
+                'BinaryReader Error: cannot seek farther than buffer length.')
+
+        self.__idx = new_offset
 
     @contextmanager
-    def seek_to(self, offset: int, whence: Whence=Whence.BEGIN) -> 'BinaryReader':
+    def seek_to(self, offset: int, whence: Whence = Whence.BEGIN) -> 'BinaryReader':
         """Same as `seek(offset, whence)`, but can be used with the `with` statement in a new context.\n
         Upon returning to the old context, the original position of the buffer before the `with` statement will be restored.\n
         Will return a reference of the BinaryReader to be used for `as` in the `with` statement.\n
