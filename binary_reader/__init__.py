@@ -1,1 +1,1 @@
-from .binary_reader import BinaryReader
+from .binary_reader import BinaryReader, Endian, Whence
