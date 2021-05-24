@@ -58,6 +58,17 @@ class BinaryReader:
         """Returns the current position in the buffer."""
         return self.__idx
 
+    def __past_eof(self, index: int) -> bool:
+        return index > self.size()
+
+    def past_eof(self) -> bool:
+        """Returns True if the current position is after the end of file."""
+        return self.__past_eof(self.pos())
+
+    def eof(self) -> bool:
+        """Returns True if the current position is at/after the end of file."""
+        return self.__past_eof(self.pos() + 1)
+
     def size(self) -> int:
         """Returns the size of the buffer."""
         return len(self.__buf)
@@ -133,7 +144,7 @@ class BinaryReader:
         else:
             raise Exception('BinaryReader Error: invalid whence value.')
 
-        if new_offset > len(self.__buf) or new_offset < 0:
+        if self.__past_eof(new_offset) or new_offset < 0:
             raise Exception(
                 'BinaryReader Error: cannot seek farther than buffer length.')
 
@@ -165,10 +176,14 @@ class BinaryReader:
 
     def __read_type(self, format: str, count=1):
         i = self.__idx
-        self.__idx += FMT[format] * count
+        new_offset = self.__idx + (FMT[format] * count)
 
         end = ">" if self.__endianness else "<"
 
+        if self.__past_eof(new_offset):
+            raise Exception('BinaryReader Error: cannot read farther than buffer length.')
+
+        self.__idx = new_offset
         return struct.unpack_from(end + str(count) + format, self.__buf, i)
 
     def read_bytes(self, length=1) -> bytes:
