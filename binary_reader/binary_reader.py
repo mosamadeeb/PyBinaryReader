@@ -114,7 +114,7 @@ class BinaryReader:
         """
         trimmed = 0
 
-        if size > 0:
+        if size >= 0:
             trimmed = self.size() - size
 
         if (trimmed > 0):
