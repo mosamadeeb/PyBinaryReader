@@ -8,6 +8,9 @@ from contextlib import contextmanager
 from enum import Flag, IntEnum
 from typing import Tuple, Union
 
+from .struct_reader.br_struct import BrStruct
+from .struct_reader.struct_reader import call_read_func, call_write_func
+
 FMT = dict()
 for c in ["b", "B", "s"]:
     FMT[c] = 1
@@ -289,6 +292,19 @@ class BinaryReader:
             return self.__read_type("e", count)
         return self.__read_type("e")[0]
 
+    def read_struct(self, cls: type, count=1) -> BrStruct:
+        """"""
+        if not (cls and issubclass(cls, BrStruct)):
+            raise Exception(f'BinaryReader Error: {cls} is not a BrStruct.')
+
+        if count > 1:
+            result = []
+            for i in range(count):
+                result.append(call_read_func(self, cls))
+            return result
+
+        return call_read_func(self, cls)
+
     def __write_type(self, format: str, value, is_iterable: bool) -> None:
         i = self.__idx
 
@@ -382,3 +398,14 @@ class BinaryReader:
         If is_iterable is True, will write all of the values in the given iterable.
         """
         self.__write_type("e", value, is_iterable)
+
+    def write_struct(self, value: BrStruct, is_iterable=False) -> None:
+        """"""
+        if not issubclass(value, BrStruct):
+            raise Exception(f'BinaryReader Error: {value} is not a BrStruct.')
+
+        if is_iterable:
+            for s in value:
+                call_write_func(self, s)
+        else:
+            call_write_func(self, value)
