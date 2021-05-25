@@ -3,14 +3,13 @@ from typing import get_args, get_origin, get_type_hints
 from .br_struct import BrStruct
 
 
-def call_read_func(br: 'BinaryReader', cls: type) -> BrStruct:
-    br_struct: BrStruct = cls()
+def call_read_func(br: 'BinaryReader', br_struct: BrStruct) -> BrStruct:
     attr_props = br_struct.attr_props
 
     if not attr_props:
         br_struct.attr_props = dict()
 
-    for attr, attr_type in get_type_hints(cls).items():
+    for attr, attr_type in get_type_hints(br_struct).items():
         if attr.startswith('_') or attr == 'attr_props':
             # Ignore protected/private attributes
             continue

@@ -1,4 +1,4 @@
-from .br_struct import BrStruct
+from .br_struct import BrStruct, BrStructManager
 
 
 def __decorator_factory(decorator_func):
@@ -7,7 +7,7 @@ def __decorator_factory(decorator_func):
             class_name = actual_func.__qualname__.split('.')[0]
 
             props = decorator_func(actual_func)
-            attr_props = BrStruct.get_attr_props(class_name)
+            attr_props = BrStructManager.get_attr_props(class_name)
 
             for a in decorator_args:
                 if not attr_props.get(a, None):
@@ -15,7 +15,7 @@ def __decorator_factory(decorator_func):
 
                 attr_props[a].update(props)
 
-            BrStruct.update_attr_props(class_name, attr_props)
+            BrStructManager.update_attr_props(class_name, attr_props)
 
             def wrapper(self: BrStruct, *args, **kwargs):
                 return actual_func(self, *args, **kwargs)

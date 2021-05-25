@@ -292,18 +292,23 @@ class BinaryReader:
             return self.__read_type("e", count)
         return self.__read_type("e")[0]
 
-    def read_struct(self, cls: type, count=1) -> BrStruct:
+    def read_struct(self, cls: type, check_attrs=True, count=1) -> BrStruct:
         """"""
         if not (cls and issubclass(cls, BrStruct)):
             raise Exception(f'BinaryReader Error: {cls} is not a BrStruct.')
 
-        if count > 1:
-            result = []
-            for i in range(count):
-                result.append(call_read_func(self, cls))
-            return result
+        result = []
+        for _ in range(count):
+            br_struct = cls()
+            br_struct.__br_read__(self)
+            if check_attrs:
+                br_struct = call_read_func(self, br_struct)
+            result.append(br_struct)
 
-        return call_read_func(self, cls)
+        if count == 1:
+            return result[0]
+
+        return result
 
     def __write_type(self, format: str, value, is_iterable: bool) -> None:
         i = self.__idx
@@ -399,13 +404,17 @@ class BinaryReader:
         """
         self.__write_type("e", value, is_iterable)
 
-    def write_struct(self, value: BrStruct, is_iterable=False) -> None:
+    def write_struct(self, value: BrStruct, check_attrs=True, is_iterable=False) -> None:
         """"""
         if not issubclass(value, BrStruct):
             raise Exception(f'BinaryReader Error: {value} is not a BrStruct.')
 
         if is_iterable:
             for s in value:
-                call_write_func(self, s)
+                s.__br_write__(self)
+                if check_attrs:
+                    call_write_func(self, s)
         else:
-            call_write_func(self, value)
+            value.__br_write__(self)
+            if check_attrs:
+                call_write_func(self, value)

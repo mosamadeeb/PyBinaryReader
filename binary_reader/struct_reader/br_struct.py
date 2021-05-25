@@ -7,11 +7,7 @@ class NameMeta(type):
         self.class_name = name
 
 
-class BrStruct(metaclass=NameMeta):
-    def __init__(self):
-        self.attr_props = BrStruct.get_attr_props(self.class_name)
-        print(self.attr_props)
-
+class BrStructManager:
     __struct_attr_props: Dict[str, Dict[str, Any]] = dict()
 
     @classmethod
@@ -24,5 +20,19 @@ class BrStruct(metaclass=NameMeta):
             cls.__struct_attr_props[name] = dict()
 
         cls.__struct_attr_props[name].update(attr_props)
+
+
+class BrStruct(metaclass=NameMeta):
+    def __init__(self):
+        self.attr_props = BrStructManager.get_attr_props(self.class_name)
+        print(self.attr_props)
+
+    def __br_read__(self, br: 'BinaryReader') -> None:
+        """test read"""
+        pass
+
+    def __br_write__(self, br: 'BinaryReader') -> None:
+        """test write"""
+        pass
 
     attr_props: Dict[str, Dict[str, Any]]
