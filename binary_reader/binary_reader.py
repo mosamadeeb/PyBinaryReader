@@ -191,7 +191,7 @@ class BinaryReader:
 
     def read_bytes(self, length=1) -> bytes:
         """Reads a bytes object with the given length from the current position."""
-        return self.__read_type("s", length)
+        return self.__read_type("s", length)[0]
 
     def read_str(self, length=0, encoding=None) -> str:
         """Reads a string with the given length from the current position.\n
@@ -210,7 +210,7 @@ class BinaryReader:
 
             return string.split(b'\x00', 1)[0].decode(encode)
 
-        return self.read_bytes(length)[0].split(b'\x00', 1)[0].decode(encode)
+        return self.read_bytes(length).split(b'\x00', 1)[0].decode(encode)
 
     def read_int64(self, count=1) -> Union[int, Tuple[int]]:
         """Reads a signed 64-bit integer.\n
