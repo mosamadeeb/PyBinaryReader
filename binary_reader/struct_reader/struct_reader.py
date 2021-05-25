@@ -68,11 +68,11 @@ def call_read_func(br: 'BinaryReader', br_struct: BrStruct) -> BrStruct:
                 f'BinaryReader Error: type {attr_type} is not supported by BinaryReader.')
 
         if type_name == 'str':
-            args.append(evaluate_func(props.get('str_length', 1), br_struct))
+            args.append(evaluate_func(props.get('str_length', 0), br_struct))
             args.append(evaluate_func(
                 props.get('str_encoding', None), br_struct))
 
-            if not isinstance(attr_type, str):
+            if attr_type is not str:
                 # iterable
                 value_list = list()
 
@@ -89,6 +89,7 @@ def call_read_func(br: 'BinaryReader', br_struct: BrStruct) -> BrStruct:
 
 def call_write_func(br: 'BinaryReader', br_struct: BrStruct):
     offsets = []
+    offsetDict = {}
     attr_props = br_struct.attr_props
 
     if not attr_props:
@@ -103,16 +104,15 @@ def call_write_func(br: 'BinaryReader', br_struct: BrStruct):
         value = getattr(br_struct, attr)
         props = attr_props.get(attr, dict())
 
-        props['offset'] = br.pos()
+        offsetDict[attr] = br.pos()
 
         if props.get('has_type', False):
             attr_type = evaluate_func(
                 props.get('type_func', attr_type),
                 br_struct)
 
-        if props.get('is_offset_of', None):
+        if props.get('is_offset', False):
             offsets.append((attr, attr_type))
-            continue
 
         if value is None:
             value = 0
@@ -172,13 +172,13 @@ def call_write_func(br: 'BinaryReader', br_struct: BrStruct):
         if props.get('offset', -1) != -1:
             br.seek(props['offset'])
 
-            item = attr_props.get(props.get('is_offset_of', ''), dict())
+            offset = offsetDict.get(props.get('other', ''), 0)
 
             write_func = getattr(br, f'write_{t.__name__}', None)
             write_func(evaluate_func(
-                props.get('offset_func', 0), 
+                props.get('is_offset_func', 0), 
                 br_struct, 
-                item.get('offset', 0) # calc offset from actual offset
+                offset # calc offset from actual offset
             ))
 
 

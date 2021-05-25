@@ -406,7 +406,7 @@ class BinaryReader:
 
     def write_struct(self, value: BrStruct, check_attrs=True, is_iterable=False) -> None:
         """"""
-        if not issubclass(value, BrStruct):
+        if not issubclass(type(value), BrStruct):
             raise Exception(f'BinaryReader Error: {value} is not a BrStruct.')
 
         if is_iterable:

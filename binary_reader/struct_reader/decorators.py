@@ -10,6 +10,9 @@ def __decorator_factory(decorator_func):
             attr_props = BrStructManager.get_attr_props(class_name)
 
             for a in decorator_args:
+                if type(a) is tuple and len(a) == 2:
+                    a, b = a
+                    props['other'] = b
                 if not attr_props.get(a, None):
                     attr_props[a] = dict()
 
@@ -26,8 +29,39 @@ def __decorator_factory(decorator_func):
 
 
 @__decorator_factory
+def is_offset(*args):
+    """[Write] tuple
+    is offset"""
+    props = dict()
+    props['is_offset'] = True
+    props['is_offset_func'] = args[0]
+    return props
+
+
+@__decorator_factory
+def offset_of(*args):
+    """[Read]
+    offset of variable"""
+    props = dict()
+    props['has_offset'] = True
+    props['offset_func'] = args[0]
+    return props
+
+
+@__decorator_factory
+def type_of(*args):
+    """[Read/Write]
+    type of variable"""
+    props = dict()
+    props['has_type'] = True
+    props['type_func'] = args[0]
+    return props
+
+
+@__decorator_factory
 def count_of(*args):
-    """count of iterable"""
+    """[Read]
+    count of iterable"""
     props = dict()
     props['has_count'] = True
     props['count_func'] = args[0]
@@ -36,7 +70,16 @@ def count_of(*args):
 
 @__decorator_factory
 def length_of(*args):
-    """length of string"""
+    """[Read]
+    length of string"""
     props = dict()
     props['str_length'] = args[0]
+    return props
+
+@__decorator_factory
+def null(*args):
+    """[Write]
+    null terminated string"""
+    props = dict()
+    props['str_null'] = args[0]
     return props
