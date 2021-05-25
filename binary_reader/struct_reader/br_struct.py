@@ -25,7 +25,6 @@ class BrStructManager:
 class BrStruct(metaclass=NameMeta):
     def __init__(self):
         self.attr_props = BrStructManager.get_attr_props(self.class_name)
-        print(self.attr_props)
 
     def __br_read__(self, br: 'BinaryReader') -> None:
         """test read"""
