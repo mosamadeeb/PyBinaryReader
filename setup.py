@@ -6,7 +6,7 @@ with open('README.md', encoding='utf-8') as f:
 setup(
   name = 'binary_reader',
   packages = ['binary_reader'],
-  version = '1.3.2',
+  version = '1.4.0',
   license='MIT',
   description = 'A python module for basic binary file IO.',
   long_description=long_description,
@@ -14,8 +14,8 @@ setup(
   author = 'SutandoTsukai181',
   author_email = 'mosamaeldeeb@gmail.com',
   url = 'https://github.com/SutandoTsukai181/PyBinaryReader',
-  download_url = 'https://github.com/SutandoTsukai181/PyBinaryReader/archive/refs/tags/v1.3.2.tar.gz',
-  keywords = ['BINARY', 'IO'],
+  download_url = 'https://github.com/SutandoTsukai181/PyBinaryReader/archive/refs/tags/v1.4.0.tar.gz',
+  keywords = ['BINARY', 'IO', 'STRUCT'],
   install_requires=[],
   classifiers=[
     'Development Status :: 5 - Production/Stable',
