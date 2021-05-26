@@ -30,13 +30,34 @@ class Whence(IntEnum):
     END = 2
 
 
-class BrStruct():
+class BrStruct:
+    """Base class for objects passed to BinaryReader's `read_struct` and `write_struct` methods.\n
+    Any type passed to `read_struct` and any object passed to `write_struct` must inherit from this class.\n
+    Override `__br_read__` and `__br_write__` methods from this class to set up BinaryReader to read your classes.\n"""
+
+    def __init__(self) -> None:
+        """If this class will be used with BinaryReader's `read_struct` method, then this method MUST receive zero arguments after `self`.\n
+        """
+        pass
+
     def __br_read__(self, br: 'BinaryReader', *args) -> None:
-        """"""
+        """Called once when `BinaryReader.read_struct` is called on this class.\n
+        This method must accept at least 1 parameter (other than `self`).\n
+        The first parameter will be the BinaryReader instance which `read_struct` was called from.
+        This parameter can be used to `read` the attributes of object.\n
+        This method can take any number of parameters after the required first parameter.
+        The additional arguments corresponding to these parameters should be passed to `BinaryReader.read_struct` after the `count` argument.\n
+        """
         pass
 
     def __br_write__(self, br: 'BinaryReader', *args) -> None:
-        """"""
+        """Called once when `BinaryReader.write_struct` is called on an instance of this class.\n
+        This method must accept at least 1 parameter (other than `self`).\n
+        The first parameter will be the BinaryReader instance which `write_struct` was called from.
+        This parameter can be used to `write` the attributes of object.\n
+        This method can take any number of parameters after the required first parameter.
+        The additional arguments corresponding to these parameters should be passed to `BinaryReader.write_struct` after the `value` argument.\n
+        """
         pass
 
 
@@ -195,7 +216,8 @@ class BinaryReader:
         end = ">" if self.__endianness else "<"
 
         if self.__past_eof(new_offset):
-            raise Exception('BinaryReader Error: cannot read farther than buffer length.')
+            raise Exception(
+                'BinaryReader Error: cannot read farther than buffer length.')
 
         self.__idx = new_offset
         return struct.unpack_from(end + str(count) + format, self.__buf, i)
@@ -304,9 +326,14 @@ class BinaryReader:
         return self.__read_type("e")[0]
 
     def read_struct(self, cls: type, count=1, *args) -> BrStruct:
-        """"""
+        """Creates and returns an instance of the given `cls` after calling its `__br_read__` method.\n
+        `cls` must be a subclass of BrStruct.\n
+        If count is not equal to 1, will return a tuple of values instead of 1 value.\n
+        Additional arguments given after `count` will be passed to the `__br_read__` method of `cls`.\n
+        """
         if not (cls and issubclass(cls, BrStruct)):
-            raise Exception(f'BinaryReader Error: {cls} is not a subclass of BrStruct.')
+            raise Exception(
+                f'BinaryReader Error: {cls} is not a subclass of BrStruct.')
 
         result = []
         for _ in range(count):
@@ -414,9 +441,14 @@ class BinaryReader:
         self.__write_type("e", value, self.is_iterable(value))
 
     def write_struct(self, value: BrStruct, *args) -> None:
-        """"""
-        if not isinstance(value, BrStruct):
-            raise Exception(f'BinaryReader Error: {value} is not an instance of BrStruct.')
+        """Calls the given value's `__br_write__` method.\n
+        `value` must be an instance of a class that inherits BrStruct.\n
+        If value is iterable, will call the `__br_write__` method of all elements in the given iterable.\n
+        Additional arguments given after `value` will be passed to the `__br_write__` method of `value`.\n
+        """
+        if not isinstance(value, BrStruct) and not (self.is_iterable(value) and all(isinstance(e, BrStruct) for e in value)):
+            raise Exception(
+                f'BinaryReader Error: {value} is not an instance of BrStruct.')
 
         if self.is_iterable(value):
             for s in value:
