@@ -30,6 +30,16 @@ class Whence(IntEnum):
     END = 2
 
 
+class BrStruct():
+    def __br_read__(self, br: 'BinaryReader') -> None:
+        """"""
+        pass
+
+    def __br_write__(self, br: 'BinaryReader') -> None:
+        """"""
+        pass
+
+
 class BinaryReader:
     """A buffer reader/writer containing a mutable bytearray.\n
     Allows reading and writing various data types, while advancing the position of the buffer on each operation."""
@@ -289,6 +299,22 @@ class BinaryReader:
             return self.__read_type("e", count)
         return self.__read_type("e")[0]
 
+    def read_struct(self, cls: type, count=1) -> BrStruct:
+        """"""
+        if not (cls and issubclass(cls, BrStruct)):
+            raise Exception(f'BinaryReader Error: {cls} is not a BrStruct.')
+
+        result = []
+        for _ in range(count):
+            br_struct = cls()
+            br_struct.__br_read__(self)
+            result.append(br_struct)
+
+        if count == 1:
+            return result[0]
+
+        return tuple(result)
+
     def __write_type(self, format: str, value, is_iterable: bool) -> None:
         i = self.__idx
 
@@ -382,3 +408,14 @@ class BinaryReader:
         If is_iterable is True, will write all of the values in the given iterable.
         """
         self.__write_type("e", value, is_iterable)
+
+    def write_struct(self, value: BrStruct, is_iterable=False) -> None:
+        """"""
+        if not issubclass(type(value), BrStruct):
+            raise Exception(f'BinaryReader Error: {value} is not a BrStruct.')
+
+        if is_iterable:
+            for s in value:
+                s.__br_write__(self)
+        else:
+            value.__br_write__(self)
