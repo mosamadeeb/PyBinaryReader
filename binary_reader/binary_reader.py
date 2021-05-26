@@ -31,11 +31,11 @@ class Whence(IntEnum):
 
 
 class BrStruct():
-    def __br_read__(self, br: 'BinaryReader') -> None:
+    def __br_read__(self, br: 'BinaryReader', *args) -> None:
         """"""
         pass
 
-    def __br_write__(self, br: 'BinaryReader') -> None:
+    def __br_write__(self, br: 'BinaryReader', *args) -> None:
         """"""
         pass
 
@@ -303,15 +303,15 @@ class BinaryReader:
             return self.__read_type("e", count)
         return self.__read_type("e")[0]
 
-    def read_struct(self, cls: type, count=1) -> BrStruct:
+    def read_struct(self, cls: type, count=1, *args) -> BrStruct:
         """"""
         if not (cls and issubclass(cls, BrStruct)):
-            raise Exception(f'BinaryReader Error: {cls} is not a BrStruct.')
+            raise Exception(f'BinaryReader Error: {cls} is not a subclass of BrStruct.')
 
         result = []
         for _ in range(count):
             br_struct = cls()
-            br_struct.__br_read__(self)
+            br_struct.__br_read__(self, *args)
             result.append(br_struct)
 
         if count == 1:
@@ -413,13 +413,13 @@ class BinaryReader:
         """
         self.__write_type("e", value, self.is_iterable(value))
 
-    def write_struct(self, value: BrStruct) -> None:
+    def write_struct(self, value: BrStruct, *args) -> None:
         """"""
-        if not issubclass(type(value), BrStruct):
-            raise Exception(f'BinaryReader Error: {value} is not a BrStruct.')
+        if not isinstance(value, BrStruct):
+            raise Exception(f'BinaryReader Error: {value} is not an instance of BrStruct.')
 
         if self.is_iterable(value):
             for s in value:
-                s.__br_write__(self)
+                s.__br_write__(self, *args)
         else:
-            value.__br_write__(self)
+            value.__br_write__(self, *args)
