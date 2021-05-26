@@ -184,6 +184,10 @@ class BinaryReader:
         str.encode('', encoding)
         self.__encoding = encoding
 
+    @staticmethod
+    def is_iterable(x) -> bool:
+        return hasattr(x, '__iter__') and not isinstance(x, (str, bytes))
+
     def __read_type(self, format: str, count=1):
         i = self.__idx
         new_offset = self.__idx + (FMT[format] * count)
@@ -349,72 +353,72 @@ class BinaryReader:
         self.write_bytes(bytes_obj)
         return len(bytes_obj)
 
-    def write_int64(self, value: int, is_iterable=False) -> None:
+    def write_int64(self, value: int) -> None:
         """Writes a signed 64-bit integer.\n
-        If is_iterable is True, will write all of the values in the given iterable.
+        If value is iterable, will write all of the elements in the given iterable.
         """
-        self.__write_type("q", value, is_iterable)
+        self.__write_type("q", value, self.is_iterable(value))
 
-    def write_uint64(self, value: int, is_iterable=False) -> None:
+    def write_uint64(self, value: int) -> None:
         """Writes an unsigned 64-bit integer.\n
-        If is_iterable is True, will write all of the values in the given iterable.
+        If value is iterable, will write all of the elements in the given iterable.
         """
-        self.__write_type("Q", value, is_iterable)
+        self.__write_type("Q", value, self.is_iterable(value))
 
-    def write_int32(self, value: int, is_iterable=False) -> None:
+    def write_int32(self, value: int) -> None:
         """Writes a signed 32-bit integer.\n
-        If is_iterable is True, will write all of the values in the given iterable.
+        If value is iterable, will write all of the elements in the given iterable.
         """
-        self.__write_type("i", value, is_iterable)
+        self.__write_type("i", value, self.is_iterable(value))
 
-    def write_uint32(self, value: int, is_iterable=False) -> None:
+    def write_uint32(self, value: int) -> None:
         """Writes an unsigned 32-bit integer.\n
-        If is_iterable is True, will write all of the values in the given iterable.
+        If value is iterable, will write all of the elements in the given iterable.
         """
-        self.__write_type("I", value, is_iterable)
+        self.__write_type("I", value, self.is_iterable(value))
 
-    def write_int16(self, value: int, is_iterable=False) -> None:
+    def write_int16(self, value: int) -> None:
         """Writes a signed 16-bit integer.\n
-        If is_iterable is True, will write all of the values in the given iterable.
+        If value is iterable, will write all of the elements in the given iterable.
         """
-        self.__write_type("h", value, is_iterable)
+        self.__write_type("h", value, self.is_iterable(value))
 
-    def write_uint16(self, value: int, is_iterable=False) -> None:
+    def write_uint16(self, value: int) -> None:
         """Writes an unsigned 16-bit integer.\n
-        If is_iterable is True, will write all of the values in the given iterable.
+        If value is iterable, will write all of the elements in the given iterable.
         """
-        self.__write_type("H", value, is_iterable)
+        self.__write_type("H", value, self.is_iterable(value))
 
-    def write_int8(self, value: int, is_iterable=False) -> None:
+    def write_int8(self, value: int) -> None:
         """Writes a signed 8-bit integer.\n
-        If is_iterable is True, will write all of the values in the given iterable.
+        If value is iterable, will write all of the elements in the given iterable.
         """
-        self.__write_type("b", value, is_iterable)
+        self.__write_type("b", value, self.is_iterable(value))
 
-    def write_uint8(self, value: int, is_iterable=False) -> None:
+    def write_uint8(self, value: int) -> None:
         """Writes an unsigned 8-bit integer.\n
-        If is_iterable is True, will write all of the values in the given iterable.
+        If value is iterable, will write all of the elements in the given iterable.
         """
-        self.__write_type("B", value, is_iterable)
+        self.__write_type("B", value, self.is_iterable(value))
 
-    def write_float(self, value: float, is_iterable=False) -> None:
+    def write_float(self, value: float) -> None:
         """Writes a 32-bit float.\n
-        If is_iterable is True, will write all of the values in the given iterable.
+        If value is iterable, will write all of the elements in the given iterable.
         """
-        self.__write_type("f", value, is_iterable)
+        self.__write_type("f", value, self.is_iterable(value))
 
-    def write_half_float(self, value: float, is_iterable=False) -> None:
+    def write_half_float(self, value: float) -> None:
         """Writes a 16-bit float (half-float).\n
-        If is_iterable is True, will write all of the values in the given iterable.
+        If value is iterable, will write all of the elements in the given iterable.
         """
-        self.__write_type("e", value, is_iterable)
+        self.__write_type("e", value, self.is_iterable(value))
 
-    def write_struct(self, value: BrStruct, is_iterable=False) -> None:
+    def write_struct(self, value: BrStruct) -> None:
         """"""
         if not issubclass(type(value), BrStruct):
             raise Exception(f'BinaryReader Error: {value} is not a BrStruct.')
 
-        if is_iterable:
+        if self.is_iterable(value):
             for s in value:
                 s.__br_write__(self)
         else:
