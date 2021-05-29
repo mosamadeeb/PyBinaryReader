@@ -1,7 +1,7 @@
 __author__ = "SutandoTsukai181"
 __copyright__ = "Copyright 2021, SutandoTsukai181"
 __license__ = "MIT"
-__version__ = "1.4.0"
+__version__ = "1.4.1"
 
 import struct
 from contextlib import contextmanager
