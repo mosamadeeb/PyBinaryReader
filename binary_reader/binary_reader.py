@@ -245,106 +245,110 @@ class BinaryReader:
 
         return self.read_bytes(length).split(b'\x00', 1)[0].decode(encode)
 
-    def read_int64(self, count=1) -> Union[int, Tuple[int]]:
+    def read_int64(self, count=None) -> Union[int, Tuple[int]]:
         """Reads a signed 64-bit integer.\n
-        If count is greater than 1, will return a tuple of values instead of 1 value.
+        If count is given, will return a tuple of values instead of 1 value.
         """
-        if count > 1:
+        if count is not None:
             return self.__read_type("q", count)
         return self.__read_type("q")[0]
 
-    def read_uint64(self, count=1) -> Union[int, Tuple[int]]:
+    def read_uint64(self, count=None) -> Union[int, Tuple[int]]:
         """Reads an unsigned 64-bit integer.\n
-        If count is greater than 1, will return a tuple of values instead of 1 value.
+        If count is given, will return a tuple of values instead of 1 value.
         """
-        if count > 1:
+        if count is not None:
             return self.__read_type("Q", count)
         return self.__read_type("Q")[0]
 
-    def read_int32(self, count=1) -> Union[int, Tuple[int]]:
+    def read_int32(self, count=None) -> Union[int, Tuple[int]]:
         """Reads a signed 32-bit integer.\n
-        If count is greater than 1, will return a tuple of values instead of 1 value.
+        If count is given, will return a tuple of values instead of 1 value.
         """
-        if count > 1:
+        if count is not None:
             return self.__read_type("i", count)
         return self.__read_type("i")[0]
 
-    def read_uint32(self, count=1) -> Union[int, Tuple[int]]:
+    def read_uint32(self, count=None) -> Union[int, Tuple[int]]:
         """Reads an unsigned 32-bit integer.\n
-        If count is greater than 1, will return a tuple of values instead of 1 value.
+        If count is given, will return a tuple of values instead of 1 value.
         """
-        if count > 1:
+        if count is not None:
             return self.__read_type("I", count)
         return self.__read_type("I")[0]
 
-    def read_int16(self, count=1) -> Union[int, Tuple[int]]:
+    def read_int16(self, count=None) -> Union[int, Tuple[int]]:
         """Reads a signed 16-bit integer.\n
-        If count is greater than 1, will return a tuple of values instead of 1 value.
+        If count is given, will return a tuple of values instead of 1 value.
         """
-        if count > 1:
+        if count is not None:
             return self.__read_type("h", count)
         return self.__read_type("h")[0]
 
-    def read_uint16(self, count=1) -> Union[int, Tuple[int]]:
+    def read_uint16(self, count=None) -> Union[int, Tuple[int]]:
         """Reads an unsigned 16-bit integer.\n
-        If count is greater than 1, will return a tuple of values instead of 1 value.
+        If count is given, will return a tuple of values instead of 1 value.
         """
-        if count > 1:
+        if count is not None:
             return self.__read_type("H", count)
         return self.__read_type("H")[0]
 
-    def read_int8(self, count=1) -> Union[int, Tuple[int]]:
+    def read_int8(self, count=None) -> Union[int, Tuple[int]]:
         """Reads a signed 8-bit integer.\n
-        If count is greater than 1, will return a tuple of values instead of 1 value.
+        If count is given, will return a tuple of values instead of 1 value.
         """
-        if count > 1:
+        if count is not None:
             return self.__read_type("b", count)
         return self.__read_type("b")[0]
 
-    def read_uint8(self, count=1) -> Union[int, Tuple[int]]:
+    def read_uint8(self, count=None) -> Union[int, Tuple[int]]:
         """Reads an unsigned 8-bit integer.\n
-        If count is greater than 1, will return a tuple of values instead of 1 value.
+        If count is given, will return a tuple of values instead of 1 value.
         """
-        if count > 1:
+        if count is not None:
             return self.__read_type("B", count)
         return self.__read_type("B")[0]
 
-    def read_float(self, count=1) -> Union[float, Tuple[float]]:
+    def read_float(self, count=None) -> Union[float, Tuple[float]]:
         """Reads a 32-bit float.\n
-        If count is greater than 1, will return a tuple of values instead of 1 value.
+        If count is given, will return a tuple of values instead of 1 value.
         """
-        if count > 1:
+        if count is not None:
             return self.__read_type("f", count)
         return self.__read_type("f")[0]
 
-    def read_half_float(self, count=1) -> Union[float, Tuple[float]]:
+    def read_half_float(self, count=None) -> Union[float, Tuple[float]]:
         """Reads a 16-bit float (half-float).\n
-        If count is greater than 1, will return a tuple of values instead of 1 value.
+        If count is given, will return a tuple of values instead of 1 value.
         """
-        if count > 1:
+        if count is not None:
             return self.__read_type("e", count)
         return self.__read_type("e")[0]
 
-    def read_struct(self, cls: type, count=1, *args) -> BrStruct:
+    def read_struct(self, cls: type, count=None, *args) -> BrStruct:
         """Creates and returns an instance of the given `cls` after calling its `__br_read__` method.\n
         `cls` must be a subclass of BrStruct.\n
-        If count is not equal to 1, will return a tuple of values instead of 1 value.\n
+        If count is given, will return a tuple of values instead of 1 value.\n
         Additional arguments given after `count` will be passed to the `__br_read__` method of `cls`.\n
         """
         if not (cls and issubclass(cls, BrStruct)):
             raise Exception(
                 f'BinaryReader Error: {cls} is not a subclass of BrStruct.')
 
-        result = []
-        for _ in range(count):
-            br_struct = cls()
-            br_struct.__br_read__(self, *args)
-            result.append(br_struct)
+        if count is not None:
+            result = []
 
-        if count == 1:
-            return result[0]
+            for _ in range(count):
+                br_struct = cls()
+                br_struct.__br_read__(self, *args)
+                result.append(br_struct)
 
-        return tuple(result)
+            return tuple(result)
+
+        br_struct = cls()
+        br_struct.__br_read__(self, *args)
+
+        return br_struct
 
     def __write_type(self, format: str, value, is_iterable: bool) -> None:
         i = self.__idx
