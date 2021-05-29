@@ -117,9 +117,22 @@ class BinaryReader:
 
         self.extend([0] * size)
 
+    def align_pos(self, size: int) -> int:
+        """Aligns the current position to the given size.\n
+        Advances the current position by (size - (current_position % size)), but only if it is not aligned.\n
+        Returns the number of bytes skipped.
+        """
+        skipped = 0
+
+        if self.pos() % size:
+            skipped = size - (self.pos() % size)
+            self.seek(skipped, Whence.CUR)
+
+        return skipped
+
     def align(self, size: int) -> int:
         """Aligns the buffer to the given size.\n
-        Extends the buffer from its end by (size - (buffer_size % size)).\n
+        Extends the buffer from its end by (size - (buffer_size % size)), but only if it is not aligned.\n
         Will advance the buffer position only if the position was at the end of the buffer.\n
         Returns the number of bytes padded.
         """
