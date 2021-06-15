@@ -1,7 +1,7 @@
 __author__ = "SutandoTsukai181"
 __copyright__ = "Copyright 2021, SutandoTsukai181"
 __license__ = "MIT"
-__version__ = "1.4.1"
+__version__ = "1.4.2"
 
 import struct
 from contextlib import contextmanager
@@ -235,18 +235,18 @@ class BinaryReader:
         self.__idx = new_offset
         return struct.unpack_from(end + str(count) + format, self.__buf, i)
 
-    def read_bytes(self, length=1) -> bytes:
-        """Reads a bytes object with the given length from the current position."""
-        return self.__read_type("s", length)[0]
+    def read_bytes(self, size=1) -> bytes:
+        """Reads a bytes object with the given size from the current position."""
+        return self.__read_type("s", size)[0]
 
-    def read_str(self, length=0, encoding=None) -> str:
-        """Reads a string with the given length from the current position.\n
-        If length is `0` (default), will read until the first null byte (which the position will be set after).\n
+    def read_str(self, size=None, encoding=None) -> str:
+        """Reads a string with the given size from the current position.\n
+        If size is not given, will read until the first null byte (which the position will be set after).\n
         If encoding is `None` (default), will use the BinaryReader's encoding.
         """
         encode = self.__encoding if encoding is None else encoding
 
-        if length == 0:
+        if size is None:
             string = bytearray()
             while self.__idx < len(self.__buf):
                 string.append(self.__buf[self.__idx])
@@ -256,7 +256,10 @@ class BinaryReader:
 
             return string.split(b'\x00', 1)[0].decode(encode)
 
-        return self.read_bytes(length).split(b'\x00', 1)[0].decode(encode)
+        if size < 0:
+            raise ValueError('size cannot be negative')
+
+        return self.read_bytes(size).split(b'\x00', 1)[0].decode(encode)
 
     def read_int64(self, count=None) -> Union[int, Tuple[int]]:
         """Reads a signed 64-bit integer.\n
@@ -394,6 +397,21 @@ class BinaryReader:
         """
         bytes_obj = string.encode(
             self.__encoding if encoding is None else encoding) + (b'\x00' if null else b'')
+        self.write_bytes(bytes_obj)
+        return len(bytes_obj)
+
+    def write_str_fixed(self, string: str, size: int, encoding=None) -> None:
+        """Writes a whole string with the given size to the buffer.\n
+        If the string's size after being encoded is less than size, the remaining size will be filled with null bytes.\n
+        If it's more than size, the encoded bytes will be trimmed to size.\n
+        If encoding is `None` (default), will use the BinaryReader's encoding.
+        """
+
+        if size < 0:
+            raise ValueError('size cannot be negative')
+
+        bytes_obj = string.encode(
+            self.__encoding if encoding is None else encoding)[:size] + (b'\x00' * max(0, size - len(string)))
         self.write_bytes(bytes_obj)
         return len(bytes_obj)
 
