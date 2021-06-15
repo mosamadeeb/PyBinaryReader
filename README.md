@@ -3,8 +3,13 @@ A python module for basic binary file IO.
 
 This is something I wrote to use in my personal projects, but feel free to use it if you like!
 
+# Installation
+`pip install binary-reader`
+
 # Usage
-Just copy `binary_reader.py` into your own project and import `BinaryReader`.
+```py
+from binary_reader import BinaryReader
+```
 
 Here is some example usage on creating and using a BinaryReader to read a small part of the DDS header:
 
