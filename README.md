@@ -4,7 +4,7 @@ A python module for basic binary file IO.
 This is something I wrote to use in my personal projects, but feel free to use it if you like!
 
 # Installation
-`pip install binary-reader`
+`pip install binary-reader` (add `--upgrade` to update)
 
 # Usage
 ```py
