@@ -265,7 +265,7 @@ class BinaryReader:
         """Reads a string until a string token is found.\n
         If encoding is `None` (default), will use the BinaryReader's encoding.
         """
-        encode = self.__encoding if encoding is None else encoding
+        encode = encoding or self.__encoding
 
         i = 0
         string = bytearray()
