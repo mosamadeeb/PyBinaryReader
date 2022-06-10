@@ -261,6 +261,26 @@ class BinaryReader:
 
         return self.read_bytes(size).split(b'\x00', 1)[0].decode(encode)
 
+    def read_str_to_token(self, token: str, encoding=None) -> str:
+        """Reads a string until a string token is found.\n
+        If encoding is `None` (default), will use the BinaryReader's encoding.
+        """
+        encode = self.__encoding if encoding is None else encoding
+
+        i = 0
+        string = bytearray()
+        token_bytes = token.encode(encode)
+        token_size = len(token_bytes)
+        while self.__idx < len(self.__buf):
+            string.append(self.__buf[self.__idx])
+            self.__idx += 1
+            if token_bytes == string[i : i + token_size]:
+                break
+            if len(string) >= token_size:
+                i += 1
+
+        return string.split(b'\x00', 1)[0].decode(encode)
+
     def read_int64(self, count=None) -> Union[int, Tuple[int]]:
         """Reads a signed 64-bit integer.\n
         If count is given, will return a tuple of values instead of 1 value.
