@@ -1,7 +1,7 @@
 __author__ = "SutandoTsukai181"
 __copyright__ = "Copyright 2021, SutandoTsukai181"
 __license__ = "MIT"
-__version__ = "1.4.2"
+__version__ = "1.4.3"
 
 import struct
 from contextlib import contextmanager
@@ -244,7 +244,7 @@ class BinaryReader:
         If size is not given, will read until the first null byte (which the position will be set after).\n
         If encoding is `None` (default), will use the BinaryReader's encoding.
         """
-        encode = self.__encoding if encoding is None else encoding
+        encode = encoding or self.__encoding
 
         if size is None:
             string = bytearray()
@@ -395,8 +395,7 @@ class BinaryReader:
         If encoding is `None` (default), will use the BinaryReader's encoding.\n
         Returns the number of bytes written (including the null byte if it was added).
         """
-        bytes_obj = string.encode(
-            self.__encoding if encoding is None else encoding) + (b'\x00' if null else b'')
+        bytes_obj = string.encode(encoding or self.__encoding) + (b'\x00' if null else b'')
         self.write_bytes(bytes_obj)
         return len(bytes_obj)
 
@@ -410,10 +409,7 @@ class BinaryReader:
         if size < 0:
             raise ValueError('size cannot be negative')
 
-        bytes_obj = string.encode(
-            self.__encoding if encoding is None else encoding)[:size] + (b'\x00' * max(0, size - len(string)))
-        self.write_bytes(bytes_obj)
-        return len(bytes_obj)
+        self.write_bytes(string.encode(encoding or self.__encoding)[:size].ljust(size, b'\x00'))
 
     def write_int64(self, value: int) -> None:
         """Writes a signed 64-bit integer.\n
