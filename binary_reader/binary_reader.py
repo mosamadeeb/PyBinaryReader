@@ -15,7 +15,7 @@ for c in ["h", "H", "e"]:
     FMT[c] = 2
 for c in ["i", "I", "f"]:
     FMT[c] = 4
-for c in ["q", "Q"]:
+for c in ["q", "Q", "d"]:
     FMT[c] = 8
 
 
@@ -345,6 +345,14 @@ class BinaryReader:
             return self.__read_type("B", count)
         return self.__read_type("B")[0]
 
+    def read_double(self, count=None) -> Union[float, Tuple[float]]:
+        """Reads a 64-bit float (double-precision).\n
+        If count is given, will return a tuple of values instead of 1 value.
+        """
+        if count is not None:
+            return self.__read_type("d", count)
+        return self.__read_type("d")[0]
+
     def read_float(self, count=None) -> Union[float, Tuple[float]]:
         """Reads a 32-bit float.\n
         If count is given, will return a tuple of values instead of 1 value.
@@ -478,6 +486,12 @@ class BinaryReader:
         If value is iterable, will write all of the elements in the given iterable.
         """
         self.__write_type("B", value, self.is_iterable(value))
+
+    def write_double(self, value: float) -> None:
+        """Writes a 64-bit float (double-precision).\n
+        If value is iterable, will write all of the elements in the given iterable.
+        """
+        self.__write_type("d", value, self.is_iterable(value))    
 
     def write_float(self, value: float) -> None:
         """Writes a 32-bit float.\n
