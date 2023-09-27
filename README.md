@@ -67,7 +67,7 @@ These are the types that can be used with BinaryReader. Just add `read_` or `wri
 uint8, int8,
 uint16, int16, half_float
 uint32, int32, float
-uint64, int64,
+uint64, int64, double
 bytes, str
 ```
 
