@@ -108,14 +108,14 @@ class BinaryReader:
         """Returns the buffer as a bytearray."""
         return bytearray(self.__buf)
 
-    def pad(self, size: int) -> None:
-        """Pads the buffer by 0s with the given size and advances the buffer position.\n
+    def pad(self, size: int, paddingByte: int = 0) -> None:
+        """Pads the buffer with the given byte (defaults to 0) with the given size and advances the buffer position.\n
         Will advance the buffer position only if the position was at the end of the buffer.
         """
         if self.__idx == self.size():
             self.__idx += size
 
-        self.extend([0] * size)
+        self.extend([paddingByte] * size)
 
     def align_pos(self, size: int) -> int:
         """Aligns the current position to the given size.\n
